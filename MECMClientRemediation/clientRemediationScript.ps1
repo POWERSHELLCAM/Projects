@@ -12,6 +12,9 @@
 #                       
 # ######################################################################
 
+#Resolve issue of
+# 1. Failed to Add Update Source for WUAgent of type (2) and id ({60C65E4E-7CD9-42DB-BE21-B221EF8B07E7}). Error = 0x80070026.
+
 $logpath="C:\windows\ccm\logs\ConfigMGrClientHealthCheckup.log"
 #Enable PowerShell Execution policy
 Try 
