@@ -26,7 +26,7 @@ Try
 }
 
 $servicesList=@('BITS','CCMEXEC','WUAUSERV','MSISERVER')
-$deleteFileList=@('C:\Windows\System32\GroupPolicy\Machine\registry.pol','C:\Windows\System32\GroupPolicy\gpt.ini')
+$deleteFileList=@('C:\Windows\System32\GroupPolicy\Machine\registry.pol','C:\Windows\System32\GroupPolicy\gpt.ini','C:\Windows\smscfg.ini')
 $renamefolderList=@('C:\Windows\SoftwareDistribution','C:\Windows\system32\catroot2')
 $ScheduleIDMappings = @('{00000000-0000-0000-0000-000000000021}','{00000000-0000-0000-0000-000000000022}','{00000000-0000-0000-0000-000000000026}','{00000000-0000-0000-0000-000000000027}','{00000000-0000-0000-0000-000000000113}','{00000000-0000-0000-0000-000000000114}')
 
