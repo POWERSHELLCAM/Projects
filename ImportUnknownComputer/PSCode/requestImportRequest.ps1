@@ -28,7 +28,8 @@ Function createCSV()
                     {
                         try 
                         {
-                            New-Item "$sharedpath\csvdumps\$($computer).csv" -ItemType File
+                            $newCSVFile="$sharedpath\csvdumps\$($computer)-$(Get-Date -Format 'yyyyMMdd-HHMMss').csv"
+                            New-Item $newCSVFile -ItemType File
                             $props=[ordered]@{
                                 Email=$email
                                 Country=$country
@@ -38,9 +39,9 @@ Function createCSV()
                                 Make=$make
                                 Model=$model
                         }
-                            New-Object PsObject -Property $props | Export-Csv "$sharedpath\csvdumps\$($computer).csv" -NoTypeInformation
+                            New-Object PsObject -Property $props | Export-Csv $newCSVFile -NoTypeInformation
                             $msgBoxInput=$null
-                            $msgBoxInput = [System.Windows.MessageBox]::Show("The device registration process will begin shortly. You will be notified on below email address about its progress. `n`n Email : $email", '!!! Good Luck !!!','ok')
+                            $msgBoxInput = [System.Windows.MessageBox]::Show("The device registration process will begin shortly. You will be notified on below email address about its progress. `n`n Email : $email", '!!! Registration Initiated !!!','ok')
                             switch  ($msgBoxInput) 
                             {
                                 'OK' {$Form.Close() }
@@ -90,15 +91,15 @@ $Button = 'system.Windows.Forms.Button'
 $FontStyle = 'Microsoft Sans Serif,10,style=Regular'
 $SysDrawPoint = 'System.Drawing.Point'
 $picture='Windows.Forms.PictureBox'
-$sharedpath="\\<path>\ImportUnknownComputer\PSCode"
-$file = (get-item "$sharedpath\_logo\.png")
+$sharedpath=""
+$file = (get-item "$sharedpath\_logo\banner.png")
 $destPath = "$sharedpath\csvdumps"
 $textboxsize="210"
 $img = [System.Drawing.Image]::Fromfile($file);
 
 #Main form design
 $form = New-Object -TypeName $forms
-$form.Text = '<company> MECM Unknown Device Registration'
+$form.Text = 'MPG MECM Unknown Device Registration [Tool Version 2.0]'
 $form.Size = New-Object System.Drawing.Size(750,400)
 $form.StartPosition = 'CenterScreen'
 $Form.BackColor="white"
@@ -161,7 +162,7 @@ $msgBoxInput=$null
 $msgBoxInput = [System.Windows.MessageBox]::Show("1. Register device by MACAddress or BIOS GUID. Not by both. `n`n2. Computer name should be 15 character only.`n`n3. For multiple device registration, download the template first from `
 from 'Import Multiple Computer' section. The template will be downloaded in user's download folder.`n`n4. Country field should be from the below list only. Country name must match exactly else it will fail. `n`tGlobal`n`tUS`n`tBelgium`n`tItaly`n`tUK`n`tJapan`
 `n`n5. Upload the filled .csv file only. Other format not supported.`n`n6. The processing will take time based on `n`tCompletely new device : More time to process the request`n`tAlready registered : will be processed quickly`
-`n`n7. You will receive the mail on mentioned mail id in .csv file about the processing.", '!!! We are here to help you !!!','ok')
+`n`n7. You will receive the mail on mentioned mail id in .csv file about the processing.(The processing of records may take upto 45min)", '!!! We are here to help you !!!','ok')
 switch  ($msgBoxInput) 
 {
     'OK' {}
@@ -219,7 +220,7 @@ $label7 = New-Object System.Windows.Forms.Label
 $label7.Location = New-Object System.Drawing.Point(120,130)
 $label7.Size = New-Object System.Drawing.Size(210,20)
 $label7.Font = New-Object System.Drawing.Font("Microsoft Sans Serif",7,[System.Drawing.FontStyle]::Regular)
-$label7.Text = '(Enter MACAddress value seperated by : only). Use either MAC or GUID option'
+$label7.Text = '(Enter MACAddress value seperated by : only.) Use either MAC or GUID option.'
 
 #GUID
 $label3B = New-Object System.Windows.Forms.Label
@@ -339,7 +340,7 @@ try
     $label6.Text = "File Uploaded successfully."
     $txtFileName.Text = ""
     $msgBoxInput=$null
-    $msgBoxInput = [System.Windows.MessageBox]::Show("File uploaded successfully. The device registration process will begin shortly. You will be notified on email address mentioned in .csv file about its progress", '!!! Good Luck !!!','ok')
+    $msgBoxInput = [System.Windows.MessageBox]::Show("File uploaded successfully. The device registration process will begin shortly. You will be notified on email address mentioned in .csv file about its progress.", '!!! Good Luck !!!','ok')
     switch  ($msgBoxInput) 
     {
         'OK' {}
