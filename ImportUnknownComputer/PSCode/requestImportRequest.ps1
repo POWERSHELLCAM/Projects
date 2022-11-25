@@ -99,7 +99,7 @@ $img = [System.Drawing.Image]::Fromfile($file);
 
 #Main form design
 $form = New-Object -TypeName $forms
-$form.Text = 'MPG MECM Unknown Device Registration [Tool Version 2.0]'
+$form.Text = 'MECM Unknown Device Registration [Tool Version 2.0]'
 $form.Size = New-Object System.Drawing.Size(750,400)
 $form.StartPosition = 'CenterScreen'
 $Form.BackColor="white"
