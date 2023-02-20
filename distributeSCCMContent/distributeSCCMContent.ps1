@@ -119,12 +119,12 @@ function distributePackages($packageid,$packagename,$packagetype)
     }
 }
 
-$global:tasksequencePackageid="MP1003D4"
-$global:distributionPoint="ngpsccmprddp1.corp.root.global"
-$global:SiteCode = 'MP1'
-$global:ProviderMachineName = 'mpgclwpsh0031.corp.root.global' 
-$global:dbserver="MPGCLWPSH0030\GS_SCCMPRD"
-$global:dbcatalog="cm_mp1"
+$global:tasksequencePackageid=""
+$global:distributionPoint=""
+$global:SiteCode = ""
+$global:ProviderMachineName = "" 
+$global:dbserver=""
+$global:dbcatalog=""
 $global:query=""
 $global:logfile="c:\temp\$distributionPoint-$tasksequencepackageid-distributionStatus.log"
 $global:sqlcmd=$global:sqlconn=$null
