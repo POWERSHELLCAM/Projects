@@ -1,21 +1,40 @@
+function writeLog($message)
+{
+    Write-Output "`n $(get-date -format G)> $message" | out-file $logfile -Append
+    Write-Host "$message"
+    if($true)
+    {
+        $speak.Speak($message)
+    }
+}
 function InitializeSCCM  
-{  
-    # Customizations  
-    $initParams = @{}  
-    
-    # Import the ConfigurationManager.psd1 module   
-    if($null -eq (Get-Module ConfigurationManager)) {  
-        Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1" @initParams   
-    }  
-    
-    # Connect to the site's drive if it is not already present  
-    if($null -eq (Get-PSDrive -Name $SiteCode -PSProvider CMSite -ErrorAction SilentlyContinue)) 
-    {  
-        New-PSDrive -Name $SiteCode -PSProvider CMSite -Root $ProviderMachineName @initParams  
-    }  
-    
-    # Set the current location to be the site code.  
-    Set-Location "$($SiteCode):\" @initParams  
+{
+    try 
+    {
+           # Customizations  
+        $initParams = @{}  
+        
+        # Import the ConfigurationManager.psd1 module   
+        if($null -eq (Get-Module ConfigurationManager)) 
+        {  
+            Import-Module "$($ENV:SMS_ADMIN_UI_PATH)\..\ConfigurationManager.psd1" @initParams   
+        }  
+        
+        # Connect to the site's drive if it is not already present  
+        if($null -eq (Get-PSDrive -Name $SiteCode -PSProvider CMSite -ErrorAction SilentlyContinue)) 
+        {  
+            New-PSDrive -Name $SiteCode -PSProvider CMSite -Root $ProviderMachineName @initParams  
+        }  
+        
+        # Set the current location to be the site code.  
+        Set-Location "$($SiteCode):\" @initParams   
+        writeLog "MECM initialized successfully."
+    }
+    catch 
+    {
+        writeLog "Failed to initialize MECM. Error : $_"
+        exit 1
+    }
 }  
 
 function intializeSQLConnection
@@ -25,28 +44,36 @@ function intializeSQLConnection
     $global:sqlConn.open()
     $global:sqlcmd = New-Object System.Data.SqlClient.SqlCommand
     $global:sqlcmd.Connection = $sqlConn
-    Write-Output "$(get-date -format G)> DBServer : $dbserver `t Database : $dbcatalog" | Out-File $logfile -Append
+    writeLog "DBServer : $dbserver `t Database : $dbcatalog"
     InitializeSCCM
 }
 
 function executeSQLQuery
 {
-    $list=$null
-    $global:sqlcmd.CommandText=$null
-    $global:sqlcmd.CommandText = $query
-    write-host $query
-    $adp = New-Object System.Data.SqlClient.SqlDataAdapter $sqlcmd
-    $adp.SelectCommand.CommandTimeout=120
-    $data = New-Object System.Data.DataSet
-    $adp.Fill($data) | Out-Null
-    $list=$data.tables
-    $data=$adp=$null
-    return $list
+    try 
+    {
+        $list=$null
+        $global:sqlcmd.CommandText=$null
+        $global:sqlcmd.CommandText = $query
+        $adp = New-Object System.Data.SqlClient.SqlDataAdapter $sqlcmd
+        $adp.SelectCommand.CommandTimeout=120
+        $data = New-Object System.Data.DataSet
+        $adp.Fill($data) | Out-Null
+        $list=$data.tables
+        $data=$adp=$null 
+        return $list
+        writeLog "Successfully executed query."       
+    }
+    catch 
+    {
+        writeLog "Failed to executed query. Error $_" 
+        exit 1
+    }
 }
 
 function checkPackageStatus($packageid)
 {
-    Write-Output "$(get-date -format G)> Checking package status of $packageid" | out-file $logfile -Append
+    Writelog "Checking package status of $packageid."
     $global:query="select * from  v_PackageStatusDistPointsSumm where ServerNALPath like '%$distributionPoint%' and PackageID ='$packageid'"
     return executeSQLQuery
 }
@@ -69,11 +96,11 @@ function distributePackages($packageid,$packagename,$packagetype)
 {
     $status=$null
     $status=checkPackageStatus $packageid
-    Write-Output "$(get-date -format G)> $status" | out-file $logfile -Append
-    Write-Output "$(get-date -format G)> Status of $packageid : $($status.installstatus)" | out-file $logfile -Append
+    Writelog $status
+    writeLog "Status of $packageid : $($status.installstatus)" 
     if(($null -eq $status) -or ($status.installstatus -ne 'Package Installation complete') -or ($status.installstatus -ne 'Content updating') -or ($status.installstatus -ne 'Retrying package installation'))
     {
-        Write-Output "$(get-date -format G)> Starting distribution of $packagename." | out-file $logfile -Append
+        writelog "Starting distribution of $packagename." 
         try 
         {
             switch ($packagetype) 
@@ -89,7 +116,7 @@ function distributePackages($packageid,$packagename,$packagetype)
                     {
                         $appid=$appid[0]
                     }
-                    Write-Output "$(get-date -format G)> Application ID: $appid" | out-file $logfile -Append
+                    writelog "Application ID: $appid" 
                     Start-CMContentDistribution -ApplicationId "$appid" -DistributionPointName $distributionpoint 
                 }
                 257 { Start-CMContentDistribution -OperatingSystemImageId $packageid -DistributionPointName $distributionpoint}
@@ -98,27 +125,29 @@ function distributePackages($packageid,$packagename,$packagetype)
                 Default 
                 { 
                     $global:exitloop=$true
-                    Write-Output "$(get-date -format G)>Package $packageid type is unknown. Hence skipped package distribution." | out-file $logfile -Append 
+                    writelog "Package $packageid type is unknown. Hence skipped package distribution."  
                 }
             }            
         }
         catch [System.Management.Automation.ItemNotFoundException] 
         {
-            Write-Output "$(get-date -format G)> Package $packagename is not found in MECM." | out-file $logfile -Append
+            writelog "Package $packagename is not found in MECM." 
             $global:exitloop=$true
         }
         catch 
         {
-            Write-Output "$(get-date -format G)> Error ocuured during package distribution $_." | out-file $logfile -Append
+            writelog "Error ocuured during package distribution $_." 
             $global:exitloop=$true
         }
     }
     else 
     {
-        Write-Output "$(get-date -format G)> $packagename is already distributed." | out-file $logfile -Append
+        writelog "$packagename is already distributed." 
     }
 }
 
+Add-Type -AssemblyName System.speech
+$global:speak = New-Object System.Speech.Synthesis.SpeechSynthesizer
 $global:tasksequencePackageid=""
 $global:distributionPoint=""
 $global:SiteCode = ""
@@ -127,33 +156,39 @@ $global:dbserver=""
 $global:dbcatalog=""
 $global:query=""
 $global:logfile="c:\temp\$distributionPoint-$tasksequencepackageid-distributionStatus.log"
+
 $global:sqlcmd=$global:sqlconn=$null
-Write-Output "`n $(get-date -format G)> **************************************************************************************" | Out-File $logfile -Append
-Write-Output "$(get-date -format G)> Task Sequence PackageID : $tasksequencePackageid `t Distribution Point : $distributionPoint" | Out-File $logfile -Append
+$maxSize=100000
+$isweekend=(get-date).DayOfWeek.value__ -in (6,0)
+if($isweekend)
+{
+    $maxSize=500000
+}
+writelog "**************************************************************************************" 
+writelog "Task Sequence PackageID : $tasksequencePackageid `t Distribution Point : $distributionPoint" 
 if(($null -ne $tasksequencepackageid) -and ($null -ne $distributionPoint))
 {
     intializeSQLConnection
-    Write-Output "$(get-date -format G)> Checking missing package of Task Sequence PackageID : $tasksequencePackageid on Distribution Point : $distributionPoint" | Out-File $logfile -Append
+    writelog "Checking missing packages of Task Sequence PackageID : $tasksequencePackageid on Distribution Point : $distributionPoint" 
     $qData=checkMissingPackages
     
-    Write-Output "$(get-date -format G)> List of packages($($qdata.name.count)) missing : `n $($qdata.name | ForEach-Object {$_;write-host ''})" | Out-File $logfile -Append
+    writelog "List of packages missing : $($qdata.name.count) `n $($qdata.name | ForEach-Object {$_;write-host ''})" 
     if($qdata.name.count -ne 0)
     {
         #first distribute packages less than equal to 100MB
-       $first100=$qData | Where-Object { $_.sourcesize -lt 100000}  
-       Write-Output "First 100 packages less than 100MB. `n $($first100.name)" | Out-File $logfile -Append
-        foreach($p in $first100)
+       $quickDistribute=$qData | Where-Object { $_.sourcesize -lt $maxSize}  
+       writelog "First 100 packages less than 100MB. `n $($quickDistribute.name)" 
+        foreach($p in $quickDistribute)
         {
             distributePackages $p.PackageID $p.name $p.PackageType
         }
-        Start-Sleep $(120*$($first100.count))
+        Start-Sleep $(120*$($quickDistribute.count))
         $p=$null
-        $rest=$qData #| Where-Object { $_.sourcesize -ge 100000} 
-        foreach($p in $rest)
+        foreach($p in $qData)
         {
             $global:exitloop=$false
             $counter=1
-            Write-Output "------------------------------------------------------------------------------------" | Out-File $logfile -Append
+            writelog "------------------------------------------------------------------------------------" 
             distributePackages $p.PackageID $p.name $p.PackageType
             if(!$exitloop)
             {
@@ -168,28 +203,28 @@ if(($null -ne $tasksequencepackageid) -and ($null -ne $distributionPoint))
                     {
                         $sleeptime=$sleeptime*2
                     }
-                    Write-Output "$(get-date -format G)> Package $($p.packageid) being distributed. Sleppeing for $sleeptime. Attempt : $counter" | Out-File $logfile -Append
+                    writelog "Package $($p.packageid) being distributed. Sleppeing for $sleeptime. Attempt : $counter" 
                     Start-Sleep $sleeptime
                     $status=$null
                     $status=checkPackageStatus $p.packageid
                     $counter++
                 }
                 while($status.installstatus -ne 'Package Installation complete' -and $counter -lt 6)
-                Write-Output "$(get-date -format G)> Package $($p.packageid) distributed successfully." | Out-File $logfile -Append
+                writelog "Package $($p.packageid) distributed successfully." 
             }
-            Write-Output "------------------------------------------------------------------------------------" | Out-File $logfile -Append
+            writelog "------------------------------------------------------------------------------------" 
         }
     }
     else 
     {
-        Write-Output "$(get-date -format G)> No package to distribute to $distributionpoint." | Out-File $logfile -Append
+        writelog "No package to distribute to $distributionpoint." 
     }
     $global:sqlconn.close()
     set-location c:
 }
 else 
 {
-    Write-Output "$(get-date -format G)> Distribution point and task sequence package id information is missing." | Out-File $logfile -Append
+    writelog "Distribution point and task sequence package id information is missing." 
 }
-Write-Output "`n $(get-date -format G)> **************************************************************************************" | Out-File $logfile -Append
+writelog "**************************************************************************************" 
 
