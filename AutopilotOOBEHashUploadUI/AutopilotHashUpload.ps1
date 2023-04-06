@@ -1,6 +1,7 @@
 
 $init=
 {
+    #Function to upload hardware hash
     function sethardwarehash($tag,$tenentid)
     {
         try 
@@ -17,6 +18,7 @@ $init=
     }
 }
 
+#function to create form objects
 function addobject($objectType,$objectName,$x,$y,$objectText,$ObjectTabIndex,$x1,$y1) 
 {   
     $object = New-Object System.Windows.Forms.$objectType 
@@ -60,6 +62,7 @@ function Append-ColoredLine {
     $box.AppendText([Environment]::NewLine)
 }
 
+#function to write messages
 function writemsg
 {
     $global:index=$global:index+1
@@ -125,6 +128,11 @@ $img = [System.Drawing.Image]::Fromfile($(get-item "$sharedpath\_logo\banner.png
 $importedcsv=Import-Csv "$sharedpath\_csv\grouptaglist.csv"
 $global:message=""
 $global:index=0
+$helpcontent=@'
+1. Ensure .csv file is properly filled.
+
+2. Internet connection does exists.
+'@
 
 #region Form objects creation and customizations
 #Main form design
@@ -137,7 +145,7 @@ $groupBoxSingle = addobject "GroupBox" "groupbox" 400 150 "Online Hardware Hash 
 $groupBoxMsg = addobject "GroupBox" "groupbox" 400 150 "" $null 40 220
 
 #logo
-$pictureBox = addobject "PictureBox" "picture" 500 50 "ManpowerGroup Global SOE" $null 120 10
+$pictureBox = addobject "PictureBox" "picture" 500 50 "Logo name" $null 120 10
 $pictureBox.Image = $img
 
 for($i=0;$i -lt $lablevariablelist.Count;$i++)
@@ -202,7 +210,7 @@ $helpButton = addobject "Button" "helpButton" 75 23 "Help" $null 230 110
 $helpButton.Add_MouseHover($ShowHelp)
 $helpButton.add_click({
 $msgBoxInput=$null
-$msgBoxInput = [System.Windows.MessageBox]::Show("", '!!! We are here to help you !!!','ok')
+$msgBoxInput = [System.Windows.MessageBox]::Show($helpcontent, "!!! We are here to help you !!!",'ok')
 switch  ($msgBoxInput) 
 {
     'OK' {}
