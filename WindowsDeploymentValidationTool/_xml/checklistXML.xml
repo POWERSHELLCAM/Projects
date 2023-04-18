@@ -11,18 +11,18 @@
   <Settings>
     <Registery>
       <Reg>
-        <Path>HKLM:\SOFTWARE\ManpowerGroup\GlobalImaging</Path>
+        <Path>HKLM:\SOFTWARE\TESTCorp</Path>
         <key>OSDSelectedcountry</key>
         <Val>India</Val>
       </Reg>
     </Registery>
     <File>
-      <Path>C:\temp\_multipleMACSampleTemplat.csv</Path>
+      <Path>C:\temp\_multiplle.csv</Path>
       <Path>C:\users\test.txt</Path>
     </File>
     <Folder>
       <Path>C:\SWSetup\SP144586</Path>
-      <Path>D:\MPG Docs\Scripts\AutopilotValidationTool</Path>
+      <Path>D:\Docs\Scripts\AutopilotValidationTool</Path>
     </Folder>
     <Custom>
       <Set>
