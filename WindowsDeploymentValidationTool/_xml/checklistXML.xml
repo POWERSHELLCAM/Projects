@@ -26,11 +26,6 @@
     </Folder>
     <Custom>
       <Set>
-        <name>Product Key</name>
-        <Command>(Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey</Command>
-        <Output>RF4M9-NHMD3-QQM6R-7X898-QDBP2</Output>
-      </Set>
-      <Set>
         <name>Time Zone</name>
         <Command>(get-timezone).standardname</Command>
         <Output>Pacific Time</Output>
