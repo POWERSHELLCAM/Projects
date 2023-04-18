@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Check>
+  <Applications>
+    <App>sentinel</App>
+    <App>zscaler</App>
+    <App>tanium</App>
+    <App>Adobe</App>
+    <App>shishir</App>
+    <App>Microsoft 365</App>
+  </Applications>
+  <Settings>
+    <Registery>
+      <Reg>
+        <Path>HKLM:\SOFTWARE\ManpowerGroup\GlobalImaging</Path>
+        <key>OSDSelectedcountry</key>
+        <Val>India</Val>
+      </Reg>
+    </Registery>
+    <File>
+      <Path>C:\temp\_multipleMACSampleTemplat.csv</Path>
+      <Path>C:\users\test.txt</Path>
+    </File>
+    <Folder>
+      <Path>C:\SWSetup\SP144586</Path>
+      <Path>D:\MPG Docs\Scripts\AutopilotValidationTool</Path>
+    </Folder>
+    <Custom>
+      <Set>
+        <name>Product Key</name>
+        <Command>(Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey</Command>
+        <Output>RF4M9-NHMD3-QQM6R-7X898-QDBP2</Output>
+      </Set>
+      <Set>
+        <name>Time Zone</name>
+        <Command>(get-timezone).standardname</Command>
+        <Output>Pacific Time</Output>
+      </Set>
+    </Custom>
+  </Settings>
+</Check>

@@ -1,0 +1,41 @@
+<Window 
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        Title="Autopilot/Imaging post Validations" Height="560" Width="690" ResizeMode="NoResize">
+    <Grid>
+        <GroupBox Header="System" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,0" Height="100" Width="480">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal" DockPanel.Dock="Top">
+        <DataGrid Name="sysgrid" HorizontalAlignment="Center" Margin="3,3,0,0" VerticalAlignment="Top" Height="70" Width="450" IsReadOnly="true"/>
+        </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="XML Validation" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,120,0,0" Height="80" Width="655">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+            <Button Name="checkapp" Content="Application" Width="80" Margin="5" />
+            <Button Name="checkreg" Content="Registry" Width="80" Margin="5" />
+            <Button Name="checkfile" Content="File" Width="80" Margin="5" />
+            <Button Name="checkfolder" Content="Folder" Width="80" Margin="5" />
+            <Button Name="checkcustom" Content="Custom Script" Width="100" Margin="5" />
+            <Button Name="report" Content="Generate HTML Report" Width="140" Margin="5" />
+        </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Information" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="500,210,0,0" Height="267" Width="165">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Vertical">
+        <Button Name="applications" Content="Installed Applications" Width="126" Margin="5,5" />
+        <Button Name="drivers" Content="Driver List" Width="126" Margin="5,5"/>
+        <Button Name="bitlocker" Content="Bitlocker State" Width="126" Margin="5,5"/>
+        <Button Name="activation" Content="Windows Activation" Width="126" Margin="5,5"/>
+        <Button Name="domain" Content="Domain Status" Width="126" Margin="5,5"/>
+        <Button Name="updates" Content="Installed Updates" Width="126" Margin="5,5"/>
+        <Button Name="regional" Content="Regional Settings" Width="126" Margin="5,5"/>
+        </StackPanel>
+        </GroupBox>
+        <Image Name="logo" HorizontalAlignment="Left" Margin="503,20,0,0" VerticalAlignment="Top" Height="60" Width="160" Cursor="Hand"/>
+        <Label Name="disk" Content=" " HorizontalAlignment="Left" Margin="498,80,0,0" VerticalAlignment="Top" Height="30" Width="190"/>
+        <ProgressBar Name="progress" Minimum="0" Maximum="100" Value="1" Height="15" Width="160" VerticalAlignment="Top" Margin="493,105,0,0">
+        </ProgressBar>
+        <DataGrid Name="ResultDataGrid" HorizontalAlignment="Left" Margin="10,220,0,0" VerticalAlignment="Top" Height="257" Width="480">
+        </DataGrid>
+        <Label Name="msg" Content="Welcome to Windows checklist post Autopilot/Imaging." HorizontalAlignment="Left" Margin="8,485,0,0" VerticalAlignment="Top" Height="30" Width="520" Background="Yellow"/>
+        <Label Name="clock" Content="" HorizontalAlignment="Left" Margin="535,485,0,0" VerticalAlignment="Top" Height="30" Width="130" Background="Cyan"/>
+    </Grid>
+</Window>
