@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Check>
   <Applications>
-    <App>sentinel</App>
-    <App>zscaler</App>
-    <App>tanium</App>
+    <App>Notepad</App>
+    <App>Teams</App>
+    <App>Zebra</App>
     <App>Adobe</App>
     <App>shishir</App>
     <App>Microsoft 365</App>
