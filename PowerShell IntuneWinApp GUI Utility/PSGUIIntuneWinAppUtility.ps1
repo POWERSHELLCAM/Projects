@@ -255,7 +255,7 @@ $bcreate.Add_Click({
         if($outputFolderPath -and $sourceFilePath -and $sourceFolderPath)
         {
             displayMsg "Started ituneWin32 application creation. Please wait...."
-            $arguments = "-c $sourcefolderpath -s $sourcefilepath -o $outputfolderpath -q"
+            $arguments = "-c `"$sourcefolderpath`" -s `"$sourcefilepath`" -o `"$outputfolderpath`" -q"
             write-host $arguments
             $pinfo = New-Object System.Diagnostics.ProcessStartInfo
             $pinfo.FileName = "$scriptpath\IntuneWinAppUtil.exe"
