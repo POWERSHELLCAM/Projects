@@ -17,7 +17,7 @@ function displayMsg($m)
     {
         $global:msg.foreground='darkblue'
     }
-    elseif(($m -match 'not ') -or ($m -match 'no ') -or ($m -match 'error '))
+    elseif(($m -match 'not ') -or ($m -match 'no ') -or ($m -match 'error ') -or ($m -match 'failed'))
     {
         $global:msg.foreground='red'
     }
@@ -173,6 +173,40 @@ $choiceCustomFolder=$Window.FindName("outputselection2")
 $global:msg = $Window.FindName('msg')
 $global:sourceFolderPath=$global:sourceFilePath=$global:outputFolderPath=$Null
 
+$sb={
+    $stdout=$stderr=$ExitCode=$null     
+    if(Test-Path "$($args[0])\IntuneWinAppUtil.exe" -ErrorAction SilentlyContinue)
+    {
+        if($args[1] -and $args[2] -and $args[3])
+        {
+            $arguments = "-c `"$($args[3])`" -s `"$($args[2])`" -o `"$($args[1])`" -q"
+            $pinfo = New-Object System.Diagnostics.ProcessStartInfo
+            $pinfo.FileName = "$($args[0])\IntuneWinAppUtil.exe"
+            $pinfo.RedirectStandardError = $true
+            $pinfo.RedirectStandardOutput = $true
+            $pinfo.UseShellExecute = $false
+            $pinfo.Arguments = $arguments
+            $p = New-Object System.Diagnostics.Process
+            $p.StartInfo = $pinfo
+            $p.Start() | Out-Null
+            $p.WaitForExit()
+            $stderr=$null
+            $stdout = $p.StandardOutput.ReadToEnd()
+            $stderr = $p.StandardError.ReadToEnd()
+            $ExitCode=$p.ExitCode
+        }
+        else
+        {
+            $stderr+="Can't create intunewin application as either of the parameter is not defined."
+        }
+    }
+    else
+    {
+        $stderr+="Can't create intunewin application as IntuneWinAppUtil.exe does not exists in root folder."
+    }
+    return "`nProcessOutput: $stdout","`nProcessError: $stderr","`nProcessExitCode: $ExitCode"
+}
+
 #Browse button click event
 $bsourcefolder.Add_Click({
     $tsourcefile.isenabled=$false
@@ -250,47 +284,26 @@ $choiceSourceFolder.add_Checked({
 })
 
 $bcreate.Add_Click({
-    if(Test-Path "$scriptpath\IntuneWinAppUtil.exe" -ErrorAction SilentlyContinue)
+    displayMsg "Started ituneWin32 application creation. Please wait...."
+    $bcreate.content="Please wait..."
+    Start-Job -name packagingJob -ScriptBlock $sb -ArgumentList $scriptpath,$outputFolderPath,$sourceFilePath,$sourceFolderPath
+
+    displayMsg "Waiting for packaging job to finish."
+    wait-Job -name packagingJob
+    $packagingJobResult=receive-job -name packagingJob
+    $bcreate.content="Create"
+    if($packagingJobResult[0] -match 'has been generated successfully')
     {
-        if($outputFolderPath -and $sourceFilePath -and $sourceFolderPath)
-        {
-            displayMsg "Started ituneWin32 application creation. Please wait...."
-            $arguments = "-c `"$sourcefolderpath`" -s `"$sourcefilepath`" -o `"$outputfolderpath`" -q"
-            write-host $arguments
-            $pinfo = New-Object System.Diagnostics.ProcessStartInfo
-            $pinfo.FileName = "$scriptpath\IntuneWinAppUtil.exe"
-            $pinfo.RedirectStandardError = $true
-            $pinfo.RedirectStandardOutput = $true
-            $pinfo.UseShellExecute = $false
-            $pinfo.Arguments = $arguments
-            $p = New-Object System.Diagnostics.Process
-            $p.StartInfo = $pinfo
-            $p.Start() | Out-Null
-            $p.WaitForExit()
-            $stderr=$null
-            $stdout = $p.StandardOutput.ReadToEnd()
-            $stderr = $p.StandardError.ReadToEnd()
-            displayRichText $stdout
-            displayRichText $stderr
-            if(($p.ExitCode -eq 0) -and ($stderr -eq ""))
-            {
-                $Progress.Value=100
-                displayMsg "Successfully created $(([System.IO.DirectoryInfo]"$sourceFilePath").name) intunewin application."
-            }
-            else
-            {
-                displayMsg "Failed to create $(([System.IO.DirectoryInfo]"$sourceFilePath").name) intunewin application."
-            }
-        }
-        else
-        {
-            displayMsg "Can't create intunewin application as either of the parameter is not defined."
-        }
+        $Progress.Value=100
+        displayRichText $packagingJobResult[0]
+        displayMsg "Successfully created $(([System.IO.DirectoryInfo]"$sourceFilePath").name) intunewin application."
     }
-    else 
+    else
     {
-        displayMsg "Can't create intunewin application as IntuneWinAppUtil.exe does not exists in root folder."
-    }
+            displayMsg "Failed to create $(([System.IO.DirectoryInfo]"$sourceFilePath").name) intunewin application."
+            displayRichText $packagingJobResult[1]
+            displayRichText $packagingJobResult[2]
+    }             
 })
 
 $bcancel.Add_Click({
